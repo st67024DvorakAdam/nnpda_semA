@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-//TODO: předělat aby to vracelo DTO
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -18,8 +16,13 @@ public class AuthController {
 
     // --- Registrace ---
     @PostMapping("/register")
-    public AppUser register(@RequestBody RegisterDto dto) {
-        return authService.register(dto);
+    public AppUserDto register(@RequestBody RegisterDto dto) {
+        AppUser user = authService.register(dto);
+        return AppUserDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .build();
     }
 
     // --- Login ---
