@@ -1,5 +1,6 @@
 package cz.upce.fei.nnpda.service;
 
+import cz.upce.fei.nnpda.exception.project.ForbiddenException;
 import cz.upce.fei.nnpda.model.entity.AppUser;
 import cz.upce.fei.nnpda.model.entity.Project;
 import cz.upce.fei.nnpda.model.entity.Ticket;
@@ -21,8 +22,13 @@ public class TicketService {
     private final ProjectRepository projectRepository;
 
     public List<Ticket> getTicketsForProject(Long projectId, AppUser currentUser) {
-        Project project = projectRepository.findByIdAndOwner(projectId, currentUser)
+        Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+
+        if (!project.getOwner().equals(currentUser)) {
+            throw new ForbiddenException("Access to foreign project is forbidden");
+        }
+
         return ticketRepository.findByProject(project);
     }
 
@@ -34,11 +40,16 @@ public class TicketService {
     }
 
     public Ticket getTicket(Long projectId, Long ticketId, AppUser currentUser) {
-        Project project = projectRepository.findByIdAndOwner(projectId, currentUser)
+        Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+        if (!project.getOwner().equals(currentUser)) {
+            throw new ForbiddenException("Access to foreign project is forbidden");
+        }
+
         return ticketRepository.findByIdAndProject(ticketId, project)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
     }
+
 
     public Ticket updateTicket(Long projectId, Long ticketId, Ticket updatedTicket, AppUser currentUser) {
         Ticket ticket = getTicket(projectId, ticketId, currentUser);

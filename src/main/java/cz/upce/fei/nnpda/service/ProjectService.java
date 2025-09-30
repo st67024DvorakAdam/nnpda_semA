@@ -1,15 +1,14 @@
 package cz.upce.fei.nnpda.service;
 
+import cz.upce.fei.nnpda.exception.project.ForbiddenException;
 import cz.upce.fei.nnpda.exception.project.ProjectNotFoundException;
 import cz.upce.fei.nnpda.model.entity.Project;
 import cz.upce.fei.nnpda.model.entity.AppUser;
-import cz.upce.fei.nnpda.model.entity.enums.ProjectStatus;
 import cz.upce.fei.nnpda.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +26,14 @@ public class ProjectService {
     }
 
     public Project getProjectByIdAndOwner(Long projectId, AppUser owner) {
-        return projectRepository.findById(projectId)
-                .filter(p -> p.getOwner().equals(owner))
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found or forbidden"));
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found"));
+        if (!project.getOwner().equals(owner)) {
+            throw new ForbiddenException("Access to foreign project is forbidden");
+        }
+        return project;
     }
+
 
     public void deleteProject(Project project) {
         projectRepository.delete(project);
