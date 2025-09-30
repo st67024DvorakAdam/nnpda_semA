@@ -1,5 +1,6 @@
 package cz.upce.fei.nnpda.mapper;
 
+import cz.upce.fei.nnpda.model.dto.project.ProjectCreateDto;
 import cz.upce.fei.nnpda.model.dto.project.ProjectDto;
 import cz.upce.fei.nnpda.model.entity.AppUser;
 import cz.upce.fei.nnpda.model.entity.Project;
@@ -26,4 +27,14 @@ public class ProjectMapper {
         project.setOwner(owner);
         return project;
     }
+
+    public Project toEntity(ProjectCreateDto dto, AppUser owner) {
+        Project project = new Project();
+        project.setName(dto.getName());
+        project.setDescription(dto.getDescription());
+        project.setOwner(owner);
+        project.setStatus(ProjectStatus.ACTIVE); // defaultně ACTIVE
+        return project;
+    }
+
 }

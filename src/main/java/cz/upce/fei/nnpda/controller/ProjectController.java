@@ -1,6 +1,7 @@
 package cz.upce.fei.nnpda.controller;
 
 import cz.upce.fei.nnpda.mapper.ProjectMapper;
+import cz.upce.fei.nnpda.model.dto.project.ProjectCreateDto;
 import cz.upce.fei.nnpda.model.dto.project.ProjectDto;
 import cz.upce.fei.nnpda.model.entity.Project;
 import cz.upce.fei.nnpda.model.entity.AppUser;
@@ -38,7 +39,7 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ProjectDto createProject(@RequestBody @Valid ProjectDto projectDto) {
+    public ProjectDto createProject(@RequestBody @Valid ProjectCreateDto projectDto) {
         Project project = projectService.createProject(projectMapper.toEntity(projectDto, getCurrentUser()), getCurrentUser());
         return projectMapper.toDto(project);
     }

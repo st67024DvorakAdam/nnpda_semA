@@ -23,7 +23,6 @@ public class ProjectService {
 
     public Project createProject(Project project, AppUser owner) {
         project.setOwner(owner);
-        project.setStatus(project.getStatus() != null ? project.getStatus() : ProjectStatus.ACTIVE);
         return projectRepository.save(project);
     }
 
