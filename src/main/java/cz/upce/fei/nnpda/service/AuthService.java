@@ -3,6 +3,7 @@ package cz.upce.fei.nnpda.service;
 import cz.upce.fei.nnpda.exception.UserNotFoundException;
 import cz.upce.fei.nnpda.model.dto.*;
 import cz.upce.fei.nnpda.model.entity.AppUser;
+import cz.upce.fei.nnpda.model.token.PasswordResetToken;
 import cz.upce.fei.nnpda.repository.AppUserRepository;
 import cz.upce.fei.nnpda.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    // Dočasné uložení reset kódů; v reálu použít DB s expirací
-    private final Map<String, String> passwordResetCodes = new HashMap<>();
+    // Dočasné uložení reset kódů
+    private final Map<String, PasswordResetToken> passwordResetTokens = new HashMap<>();
 
     // --- Registrace ---
     public AppUser register(RegisterDto dto) {
@@ -61,33 +62,42 @@ public class AuthService {
 
     // --- Request reset hesla ---
     public String requestPasswordReset(PasswordResetRequestDto dto) {
-        Optional<AppUser> userOpt = userRepository.findByUsername(dto.getUsernameOrEmail());
-        if (userOpt.isEmpty()) {
-            userOpt = userRepository.findByEmail(dto.getUsernameOrEmail());
-        }
-        AppUser user = userOpt.orElseThrow(() -> new UserNotFoundException("User not found"));
+        AppUser user = userRepository.findByUsername(dto.getUsernameOrEmail())
+                .or(() -> userRepository.findByEmail(dto.getUsernameOrEmail()))
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         String code = UUID.randomUUID().toString();
-        passwordResetCodes.put(code, user.getUsername()); // map code -> username
-        // V reálu by se kód poslal emailem
+        long expiresAt = System.currentTimeMillis() + 15 * 60 * 1000; // 15 minut
 
-        return code; // pro testování vrátíme kód
+        PasswordResetToken token = new PasswordResetToken(code, user.getUsername(), expiresAt);
+
+        // přepíše starý token, pokud už existoval
+        passwordResetTokens.put(user.getUsername(), token);
+
+        return code;
     }
 
     // --- Reset hesla ---
     public void resetPassword(PasswordResetDto dto) {
-        String username = passwordResetCodes.get(dto.getCode());
-        if (username == null) {
-            throw new RuntimeException("Invalid or expired code");
+        // najití reset tokenu podle username
+        PasswordResetToken token = passwordResetTokens.values().stream()
+                .filter(t -> t.getCode().equals(dto.getCode()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Invalid or expired code"));
+
+        if (token.isExpired()) {
+            passwordResetTokens.remove(token.getUsername());
+            throw new RuntimeException("Code expired");
         }
 
-        AppUser user = userRepository.findByUsername(username)
+        AppUser user = userRepository.findByUsername(token.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         userRepository.save(user);
 
-        passwordResetCodes.remove(dto.getCode()); // kód jednorázový
+        // výmaz po použití
+        passwordResetTokens.remove(token.getUsername());
     }
 
     // --- Change password (pro přihlášeného uživatele) ---
