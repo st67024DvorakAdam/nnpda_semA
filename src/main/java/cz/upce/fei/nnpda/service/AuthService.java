@@ -1,5 +1,6 @@
 package cz.upce.fei.nnpda.service;
 
+import cz.upce.fei.nnpda.exception.UserNotFoundException;
 import cz.upce.fei.nnpda.model.dto.*;
 import cz.upce.fei.nnpda.model.entity.AppUser;
 import cz.upce.fei.nnpda.repository.AppUserRepository;
@@ -64,7 +65,7 @@ public class AuthService {
         if (userOpt.isEmpty()) {
             userOpt = userRepository.findByEmail(dto.getUsernameOrEmail());
         }
-        AppUser user = userOpt.orElseThrow(() -> new RuntimeException("User not found"));
+        AppUser user = userOpt.orElseThrow(() -> new UserNotFoundException("User not found"));
 
         String code = UUID.randomUUID().toString();
         passwordResetCodes.put(code, user.getUsername()); // map code -> username
@@ -81,7 +82,7 @@ public class AuthService {
         }
 
         AppUser user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         userRepository.save(user);
@@ -100,7 +101,7 @@ public class AuthService {
 
     public AppUser loadUserByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
 }
