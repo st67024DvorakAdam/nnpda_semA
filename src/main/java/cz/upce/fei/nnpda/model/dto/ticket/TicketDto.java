@@ -16,7 +16,7 @@ public class TicketDto {
     private Long id;
 
     @NotBlank
-    @Size(max = 160)
+    @Size(min = 1, max = 160)
     private String title;
 
     @NotNull

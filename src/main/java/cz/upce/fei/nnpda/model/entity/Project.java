@@ -6,10 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "projects")
@@ -39,6 +36,5 @@ public class Project {
     private AppUser owner;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    //@Builder.Default
-    private List<Ticket> tickets;// = new ArrayList<>();
+    private List<Ticket> tickets;
 }

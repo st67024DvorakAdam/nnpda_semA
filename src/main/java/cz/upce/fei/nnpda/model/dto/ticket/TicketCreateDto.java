@@ -4,11 +4,13 @@ import cz.upce.fei.nnpda.model.entity.enums.TicketPriority;
 import cz.upce.fei.nnpda.model.entity.enums.TicketType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
 public class TicketCreateDto {
     @NotBlank
+    @Size(min = 1, max = 160)
     private String title;
 
     @NotNull
