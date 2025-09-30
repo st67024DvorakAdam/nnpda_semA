@@ -20,6 +20,7 @@ public class AuthService {
     private final AppUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private static final int TOKEN_EXPIRE_TIME_IN_MILLIS = 15 * 60 * 1000; // 15 minut
 
     // Dočasné uložení reset kódů
     private final Map<String, PasswordResetToken> passwordResetTokens = new HashMap<>();
@@ -67,7 +68,7 @@ public class AuthService {
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         String code = UUID.randomUUID().toString();
-        long expiresAt = System.currentTimeMillis() + 15 * 60 * 1000; // 15 minut
+        long expiresAt = System.currentTimeMillis() + TOKEN_EXPIRE_TIME_IN_MILLIS;
 
         PasswordResetToken token = new PasswordResetToken(code, user.getUsername(), expiresAt);
 
