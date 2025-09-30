@@ -1,6 +1,6 @@
 package cz.upce.fei.nnpda.service;
 
-import cz.upce.fei.nnpda.exception.UserNotFoundException;
+import cz.upce.fei.nnpda.exception.*;
 import cz.upce.fei.nnpda.model.dto.*;
 import cz.upce.fei.nnpda.model.entity.AppUser;
 import cz.upce.fei.nnpda.model.token.PasswordResetToken;
@@ -28,10 +28,10 @@ public class AuthService {
     // --- Registrace ---
     public AppUser register(RegisterDto dto) {
         if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists");
+            throw new DuplicateUserException("Username already exists");
         }
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
+            throw new DuplicateUserException("Email already exists");
         }
 
         AppUser user = AppUser.builder()
@@ -46,10 +46,10 @@ public class AuthService {
     // --- Login ---
     public String login(LoginDto dto) {
         AppUser user = userRepository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid username or password");
+            throw new InvalidCredentialsException("Invalid username or password");
         }
 
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
@@ -84,11 +84,11 @@ public class AuthService {
         PasswordResetToken token = passwordResetTokens.values().stream()
                 .filter(t -> t.getCode().equals(dto.getCode()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Invalid or expired code"));
+                .orElseThrow(() -> new InvalidResetCodeException("Invalid or expired code"));
 
         if (token.isExpired()) {
             passwordResetTokens.remove(token.getUsername());
-            throw new RuntimeException("Code expired");
+            throw new ExpiredResetCodeException("Code expired");
         }
 
         AppUser user = userRepository.findByUsername(token.getUsername())
@@ -104,7 +104,7 @@ public class AuthService {
     // --- Change password (pro přihlášeného uživatele) ---
     public void changePassword(AppUser user, ChangePasswordDto dto) {
         if (!passwordEncoder.matches(dto.getOldPassword(), user.getPassword())) {
-            throw new RuntimeException("Old password is incorrect");
+            throw new InvalidPasswordException("Old password is incorrect");
         }
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         userRepository.save(user);

@@ -2,15 +2,45 @@ package cz.upce.fei.nnpda.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.*;
 
-@ControllerAdvice
+import java.util.Map;
+
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<String> handleUserNotFound(UserNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleUserNotFound(UserNotFoundException ex) {
+        return Map.of("error", ex.getMessage());
     }
 
+    @ExceptionHandler(DuplicateUserException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleDuplicateUser(DuplicateUserException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public Map<String, String> handleInvalidPassword(InvalidPasswordException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler({InvalidResetCodeException.class, ExpiredResetCodeException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleResetCode(RuntimeException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleOther(RuntimeException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<String> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+    }
 }
