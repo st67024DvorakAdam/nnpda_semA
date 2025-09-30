@@ -1,5 +1,6 @@
 package cz.upce.fei.nnpda.mapper;
 
+import cz.upce.fei.nnpda.model.dto.ticket.TicketCreateDto;
 import cz.upce.fei.nnpda.model.dto.ticket.TicketDto;
 import cz.upce.fei.nnpda.model.entity.Project;
 import cz.upce.fei.nnpda.model.entity.Ticket;
@@ -27,5 +28,15 @@ public class TicketMapper {
                 .state(dto.getState() != null ? dto.getState() : TicketState.OPEN)
                 .project(project)
                 .build();
+    }
+
+    public Ticket toEntity(TicketCreateDto dto, Project project) {
+        Ticket ticket = new Ticket();
+        ticket.setTitle(dto.getTitle());
+        ticket.setType(dto.getType());
+        ticket.setPriority(dto.getPriority());
+        ticket.setState(TicketState.OPEN); // defaultní stav OPEN
+        ticket.setProject(project);
+        return ticket;
     }
 }

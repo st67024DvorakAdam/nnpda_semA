@@ -1,5 +1,6 @@
 package cz.upce.fei.nnpda.controller;
 
+import cz.upce.fei.nnpda.model.dto.ticket.TicketCreateDto;
 import cz.upce.fei.nnpda.model.dto.ticket.TicketDto;
 import cz.upce.fei.nnpda.model.entity.AppUser;
 import cz.upce.fei.nnpda.model.entity.Project;
@@ -41,13 +42,12 @@ public class TicketController {
 
     @PostMapping
     public TicketDto createTicket(@PathVariable Long projectId,
-                                  @RequestBody @Valid TicketDto ticketDto) {
+                                  @RequestBody @Valid TicketCreateDto ticketCreateDto) {
         Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser());
-        Ticket ticket = ticketMapper.toEntity(ticketDto, project);
+        Ticket ticket = ticketMapper.toEntity(ticketCreateDto, project); // vždy OPEN
         Ticket saved = ticketService.createTicket(projectId, ticket, getCurrentUser());
         return ticketMapper.toDto(saved);
     }
-
 
     @GetMapping("/{ticketId}")
     public TicketDto getTicket(@PathVariable Long projectId, @PathVariable Long ticketId) {
@@ -69,7 +69,6 @@ public class TicketController {
     public TicketDto patchTicket(@PathVariable Long projectId,
                                  @PathVariable Long ticketId,
                                  @RequestBody TicketDto ticketDto) {
-        Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser());
         Ticket ticket = ticketService.getTicket(projectId, ticketId, getCurrentUser());
 
         if (ticketDto.getTitle() != null) ticket.setTitle(ticketDto.getTitle());
