@@ -57,6 +57,20 @@ public class ProjectController {
         return projectMapper.toDto(projectService.updateProject(project));
     }
 
+    @PatchMapping("/{projectId}")
+    public ProjectDto patchProject(@PathVariable Long projectId,
+                                   @RequestBody ProjectDto projectDto) {
+        Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser());
+
+        if (projectDto.getName() != null) project.setName(projectDto.getName());
+        if (projectDto.getDescription() != null) project.setDescription(projectDto.getDescription());
+        if (projectDto.getStatus() != null) project.setStatus(projectDto.getStatus());
+
+        Project updated = projectService.updateProject(project);
+        return projectMapper.toDto(updated);
+    }
+
+
     @DeleteMapping("/{projectId}")
     public void deleteProject(@PathVariable Long projectId) {
         Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser());

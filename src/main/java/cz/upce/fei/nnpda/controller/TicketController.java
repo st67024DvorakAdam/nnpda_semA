@@ -65,6 +65,23 @@ public class TicketController {
         return ticketMapper.toDto(updated);
     }
 
+    @PatchMapping("/{ticketId}")
+    public TicketDto patchTicket(@PathVariable Long projectId,
+                                 @PathVariable Long ticketId,
+                                 @RequestBody TicketDto ticketDto) {
+        Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser());
+        Ticket ticket = ticketService.getTicket(projectId, ticketId, getCurrentUser());
+
+        if (ticketDto.getTitle() != null) ticket.setTitle(ticketDto.getTitle());
+        if (ticketDto.getType() != null) ticket.setType(ticketDto.getType());
+        if (ticketDto.getPriority() != null) ticket.setPriority(ticketDto.getPriority());
+        if (ticketDto.getState() != null) ticket.setState(ticketDto.getState());
+
+        Ticket updated = ticketService.updateTicket(projectId, ticketId, ticket, getCurrentUser());
+        return ticketMapper.toDto(updated);
+    }
+
+
     @DeleteMapping("/{ticketId}")
     public void deleteTicket(@PathVariable Long projectId, @PathVariable Long ticketId) {
         ticketService.deleteTicket(projectId, ticketId, getCurrentUser());
