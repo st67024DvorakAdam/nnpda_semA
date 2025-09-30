@@ -1,11 +1,13 @@
 package cz.upce.fei.nnpda.controller;
 
-import cz.upce.fei.nnpda.model.dto.*;
+import cz.upce.fei.nnpda.model.dto.auth.*;
 import cz.upce.fei.nnpda.model.entity.AppUser;
 import cz.upce.fei.nnpda.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+//TODO: předělat aby to vracelo DTO
 
 @RestController
 @RequestMapping("/auth")

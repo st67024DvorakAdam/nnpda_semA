@@ -1,7 +1,8 @@
 package cz.upce.fei.nnpda.service;
 
 import cz.upce.fei.nnpda.exception.*;
-import cz.upce.fei.nnpda.model.dto.*;
+import cz.upce.fei.nnpda.exception.auth.*;
+import cz.upce.fei.nnpda.model.dto.auth.*;
 import cz.upce.fei.nnpda.model.entity.AppUser;
 import cz.upce.fei.nnpda.model.token.PasswordResetToken;
 import cz.upce.fei.nnpda.repository.AppUserRepository;

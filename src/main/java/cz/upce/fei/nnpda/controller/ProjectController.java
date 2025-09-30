@@ -1,9 +1,14 @@
 package cz.upce.fei.nnpda.controller;
 
+import cz.upce.fei.nnpda.mapper.ProjectMapper;
+import cz.upce.fei.nnpda.model.dto.project.ProjectDto;
 import cz.upce.fei.nnpda.model.entity.Project;
 import cz.upce.fei.nnpda.model.entity.AppUser;
+import cz.upce.fei.nnpda.service.AuthService;
 import cz.upce.fei.nnpda.service.ProjectService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,47 +19,49 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final AuthService authService;
+    private final ProjectMapper projectMapper;
 
-    // TODO: nahradit pevného uživatele skutečným aktuálním uživatelem z JWT
     private AppUser getCurrentUser() {
-        AppUser user = new AppUser();
-        user.setId(1L);
-        user.setUsername("test");
-        return user;
+        String username = ((org.springframework.security.core.userdetails.User)
+                SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        return authService.loadUserByUsername(username);
     }
 
     @GetMapping
-    public List<Project> getProjects() {
-        return projectService.getProjectsForUser(getCurrentUser());
+    public List<ProjectDto> getProjects() {
+        return projectService.getProjectsForUser(getCurrentUser())
+                .stream()
+                .map(projectMapper::toDto)
+                .toList();
     }
 
     @PostMapping
-    public Project createProject(@RequestBody Project project) {
-        return projectService.createProject(project, getCurrentUser());
+    public ProjectDto createProject(@RequestBody @Valid ProjectDto projectDto) {
+        Project project = projectService.createProject(projectMapper.toEntity(projectDto, getCurrentUser()), getCurrentUser());
+        return projectMapper.toDto(project);
     }
 
     @GetMapping("/{projectId}")
-    public Project getProject(@PathVariable Long projectId) {
-        return projectService.getProjectByIdAndOwner(projectId, getCurrentUser())
-                .orElseThrow(() -> new RuntimeException("Project not found or forbidden"));
+    public ProjectDto getProject(@PathVariable Long projectId) {
+        Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser());
+        return projectMapper.toDto(project);
+    }
+
+    @PutMapping("/{projectId}")
+    public ProjectDto updateProject(@PathVariable Long projectId, @RequestBody @Valid ProjectDto projectDto) {
+        Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser());
+        project.setName(projectDto.getName());
+        project.setDescription(projectDto.getDescription());
+        project.setStatus(projectDto.getStatus());
+        return projectMapper.toDto(projectService.updateProject(project));
     }
 
     @DeleteMapping("/{projectId}")
     public void deleteProject(@PathVariable Long projectId) {
-        Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser())
-                .orElseThrow(() -> new RuntimeException("Project not found or forbidden"));
+        Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser());
         projectService.deleteProject(project);
     }
 
-    @PutMapping("/{projectId}")
-    public Project updateProject(@PathVariable Long projectId, @RequestBody Project updatedProject) {
-        Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser())
-                .orElseThrow(() -> new RuntimeException("Project not found or forbidden"));
-
-        project.setName(updatedProject.getName());
-        project.setDescription(updatedProject.getDescription());
-        project.setStatus(updatedProject.getStatus());
-
-        return projectService.updateProject(project);
-    }
 }
+
