@@ -3,6 +3,7 @@ package cz.upce.fei.nnpda.controller;
 import cz.upce.fei.nnpda.mapper.ProjectMapper;
 import cz.upce.fei.nnpda.model.dto.project.ProjectCreateDto;
 import cz.upce.fei.nnpda.model.dto.project.ProjectDto;
+import cz.upce.fei.nnpda.model.dto.project.ProjectPatchDto;
 import cz.upce.fei.nnpda.model.entity.Project;
 import cz.upce.fei.nnpda.model.entity.AppUser;
 import cz.upce.fei.nnpda.service.AuthService;
@@ -61,7 +62,7 @@ public class ProjectController {
 
     @PatchMapping("/{projectId}")
     public ProjectDto patchProject(@PathVariable Long projectId,
-                                   @RequestBody @Valid ProjectDto projectDto) {
+                                   @RequestBody @Valid ProjectPatchDto projectDto) {
         Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser());
 
         if (projectDto.getName() != null) project.setName(projectDto.getName());

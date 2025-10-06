@@ -2,6 +2,7 @@ package cz.upce.fei.nnpda.controller;
 
 import cz.upce.fei.nnpda.model.dto.ticket.TicketCreateDto;
 import cz.upce.fei.nnpda.model.dto.ticket.TicketDto;
+import cz.upce.fei.nnpda.model.dto.ticket.TicketPatchDto;
 import cz.upce.fei.nnpda.model.entity.AppUser;
 import cz.upce.fei.nnpda.model.entity.Project;
 import cz.upce.fei.nnpda.model.entity.Ticket;
@@ -68,7 +69,7 @@ public class TicketController {
     @PatchMapping("/{ticketId}")
     public TicketDto patchTicket(@PathVariable Long projectId,
                                  @PathVariable Long ticketId,
-                                 @RequestBody @Valid TicketDto ticketDto) {
+                                 @RequestBody @Valid TicketPatchDto ticketDto) {
         Ticket ticket = ticketService.getTicket(projectId, ticketId, getCurrentUser());
 
         if (ticketDto.getTitle() != null) ticket.setTitle(ticketDto.getTitle());
