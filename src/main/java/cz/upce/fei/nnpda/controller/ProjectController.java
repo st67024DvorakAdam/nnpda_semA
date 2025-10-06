@@ -61,7 +61,7 @@ public class ProjectController {
 
     @PatchMapping("/{projectId}")
     public ProjectDto patchProject(@PathVariable Long projectId,
-                                   @RequestBody ProjectDto projectDto) {
+                                   @RequestBody @Valid ProjectDto projectDto) {
         Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser());
 
         if (projectDto.getName() != null) project.setName(projectDto.getName());

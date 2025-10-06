@@ -3,6 +3,7 @@ package cz.upce.fei.nnpda.controller;
 import cz.upce.fei.nnpda.model.dto.auth.*;
 import cz.upce.fei.nnpda.model.entity.AppUser;
 import cz.upce.fei.nnpda.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class AuthController {
 
     // --- Registrace ---
     @PostMapping("/register")
-    public AppUserDto register(@RequestBody RegisterDto dto) {
+    public AppUserDto register(@RequestBody @Valid RegisterDto dto) {
         AppUser user = authService.register(dto);
         return AppUserDto.builder()
                 .id(user.getId())
@@ -27,25 +28,25 @@ public class AuthController {
 
     // --- Login ---
     @PostMapping("/login")
-    public String login(@RequestBody LoginDto dto) {
+    public String login(@RequestBody @Valid LoginDto dto) {
         return authService.login(dto);
     }
 
     // --- Request reset hesla ---
     @PostMapping("/request-password-reset")
-    public String requestPasswordReset(@RequestBody PasswordResetRequestDto dto) {
+    public String requestPasswordReset(@RequestBody @Valid PasswordResetRequestDto dto) {
         return authService.requestPasswordReset(dto);
     }
 
     // --- Reset hesla ---
     @PostMapping("/reset-password")
-    public void resetPassword(@RequestBody PasswordResetDto dto) {
+    public void resetPassword(@RequestBody @Valid PasswordResetDto dto) {
         authService.resetPassword(dto);
     }
 
     // --- Change password (chráněné JWT) ---
     @PostMapping("/change-password")
-    public void changePassword(@RequestBody ChangePasswordDto dto) {
+    public void changePassword(@RequestBody @Valid ChangePasswordDto dto) {
         // získání username z SecurityContext
         String username = ((org.springframework.security.core.userdetails.User)
                 SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();

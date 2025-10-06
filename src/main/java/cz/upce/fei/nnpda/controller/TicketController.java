@@ -68,7 +68,7 @@ public class TicketController {
     @PatchMapping("/{ticketId}")
     public TicketDto patchTicket(@PathVariable Long projectId,
                                  @PathVariable Long ticketId,
-                                 @RequestBody TicketDto ticketDto) {
+                                 @RequestBody @Valid TicketDto ticketDto) {
         Ticket ticket = ticketService.getTicket(projectId, ticketId, getCurrentUser());
 
         if (ticketDto.getTitle() != null) ticket.setTitle(ticketDto.getTitle());
