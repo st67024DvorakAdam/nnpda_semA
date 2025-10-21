@@ -15,14 +15,4 @@ public class AppUserMapper {
                 .email(user.getEmail())
                 .build();
     }
-
-    public AppUser toEntity(AppUserDto dto) {
-        if (dto == null) return null;
-        AppUser user = new AppUser();
-        user.setId(dto.getId());
-        user.setUsername(dto.getUsername());
-        user.setEmail(dto.getEmail());
-        // password není z DTO, nastavuje se jen při registraci / změně hesla
-        return user;
-    }
 }
