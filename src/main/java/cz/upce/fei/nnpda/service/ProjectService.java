@@ -26,14 +26,9 @@ public class ProjectService {
     }
 
     public Project getProjectByIdAndOwner(Long projectId, AppUser owner) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found"));
-        if (!project.getOwner().equals(owner)) {
-            throw new ForbiddenException("Access to foreign project is forbidden");
-        }
-        return project;
+        return projectRepository.findByIdAndOwner(projectId, owner)
+                .orElseThrow(() -> new ForbiddenException("Access to foreign project is forbidden"));
     }
-
 
     public void deleteProject(Project project) {
         projectRepository.delete(project);
@@ -41,6 +36,11 @@ public class ProjectService {
 
     public Project updateProject(Project project) {
         return projectRepository.save(project);
+    }
+
+    public Project getProjectById(Long projectId) {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found"));
     }
 }
 
