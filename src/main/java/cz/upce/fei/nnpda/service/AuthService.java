@@ -116,4 +116,9 @@ public class AuthService {
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
+    //pro patch při ticketech
+    public AppUser loadUserById(Long assigneeId) {
+        return userRepository.findById(assigneeId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
 }

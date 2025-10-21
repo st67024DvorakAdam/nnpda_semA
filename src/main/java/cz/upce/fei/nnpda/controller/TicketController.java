@@ -3,6 +3,7 @@ package cz.upce.fei.nnpda.controller;
 import cz.upce.fei.nnpda.model.dto.ticket.TicketCreateDto;
 import cz.upce.fei.nnpda.model.dto.ticket.TicketDto;
 import cz.upce.fei.nnpda.model.dto.ticket.TicketPatchDto;
+import cz.upce.fei.nnpda.model.dto.ticket.TicketUpdateDto;
 import cz.upce.fei.nnpda.model.entity.AppUser;
 import cz.upce.fei.nnpda.model.entity.Project;
 import cz.upce.fei.nnpda.model.entity.Ticket;
@@ -59,12 +60,24 @@ public class TicketController {
     @PutMapping("/{ticketId}")
     public TicketDto updateTicket(@PathVariable Long projectId,
                                   @PathVariable Long ticketId,
-                                  @RequestBody @Valid TicketDto ticketDto) {
-        Project project = projectService.getProjectByIdAndOwner(projectId, getCurrentUser());
-        Ticket updatedEntity = ticketMapper.toEntity(ticketDto, project);
-        Ticket updated = ticketService.updateTicket(projectId, ticketId, updatedEntity, getCurrentUser());
+                                  @RequestBody @Valid TicketUpdateDto ticketDto) {
+        Ticket ticket = ticketService.getTicket(projectId, ticketId, getCurrentUser());
+
+        ticket.setTitle(ticketDto.getTitle());
+        ticket.setType(ticketDto.getType());
+        ticket.setPriority(ticketDto.getPriority());
+        ticket.setState(ticketDto.getState());
+
+        if (ticketDto.getAssigneeId() != null) {
+            ticket.setAssignee(authService.loadUserById(ticketDto.getAssigneeId()));
+        } else {
+            ticket.setAssignee(null); // odřadit řešitele
+        }
+
+        Ticket updated = ticketService.updateTicket(projectId, ticketId, ticket, getCurrentUser());
         return ticketMapper.toDto(updated);
     }
+
 
     @PatchMapping("/{ticketId}")
     public TicketDto patchTicket(@PathVariable Long projectId,
@@ -76,6 +89,12 @@ public class TicketController {
         if (ticketDto.getType() != null) ticket.setType(ticketDto.getType());
         if (ticketDto.getPriority() != null) ticket.setPriority(ticketDto.getPriority());
         if (ticketDto.getState() != null) ticket.setState(ticketDto.getState());
+        if (ticketDto.getAssigneeId() != null) {
+            ticket.setAssignee(authService.loadUserById(ticketDto.getAssigneeId()));
+        } else if (ticketDto.getAssigneeId() != null && ticketDto.getAssigneeId() == 0) {
+            // možnost odřadit řešitele
+            ticket.setAssignee(null);
+        }
 
         Ticket updated = ticketService.updateTicket(projectId, ticketId, ticket, getCurrentUser());
         return ticketMapper.toDto(updated);

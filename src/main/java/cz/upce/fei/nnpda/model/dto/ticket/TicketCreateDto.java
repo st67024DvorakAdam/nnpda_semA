@@ -15,6 +15,9 @@ public class TicketCreateDto {
 
     @NotNull
     private TicketType type;
+
     @NotNull
     private TicketPriority priority;
+
+    private Long assigneeId;
 }

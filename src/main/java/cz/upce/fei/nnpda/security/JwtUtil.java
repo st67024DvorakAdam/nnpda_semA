@@ -13,7 +13,7 @@ import java.util.Date;
 public class JwtUtil {
 
     private static final String SECRET = "tady_musí_být_minimálně_32_znaků_longa_klíč!";
-    private static final long EXPIRATION_MS = 15 * 60 * 1000; // 15 min
+    private static final long EXPIRATION_MS = 15 * 60 * 1000 * 100; // 15 min (přidáno * 100 = 1500min)
 
     // Převod String na Key pro HS256
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
