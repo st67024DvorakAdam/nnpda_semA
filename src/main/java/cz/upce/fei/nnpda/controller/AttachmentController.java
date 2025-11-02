@@ -111,6 +111,8 @@ public class AttachmentController {
         attachmentService.deleteAttachment(attachment);
     }
 
+    //-----------------společně-------------------------------------------------------
+
     @GetMapping("/attachments/{attachmentId}/download")
     public ResponseEntity<Resource> downloadAttachment(@PathVariable Long attachmentId) throws IOException {
         Attachment attachment = attachmentService.getAttachmentById(attachmentId);
