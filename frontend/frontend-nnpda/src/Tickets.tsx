@@ -142,18 +142,84 @@ const Tickets = () => {
                     </div>
                 )}
 
-                <h3 style={{ marginTop: '2rem' }}>Tickety</h3>
-                <ul>
+                <h3 style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    Tickety
+                    <button
+                        onClick={() => navigate(`/projects/${projectId}/tickets/create`)}
+                        style={{
+                            backgroundColor: '#28a745',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '5px',
+                            padding: '0.3rem 0.6rem',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        ➕ Přidat ticket
+                    </button>
+                </h3>
+
+                <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #ccc', borderRadius: '5px', padding: '0.5rem' }}>
                     {tickets.map(ticket => (
-                        <li
+                        <div
                             key={ticket.id}
-                            style={{ cursor: 'pointer', margin: '1rem 0' }}
-                            onClick={() => navigate(`/projects/${projectId}/tickets/${ticket.id}`)}
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '0.5rem',
+                                borderBottom: '1px solid #eee'
+                            }}
                         >
-                            {ticket.title} - {ticket.state} ({ticket.priority})
-                        </li>
+            <span
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate(`/projects/${projectId}/tickets/${ticket.id}`)}
+            >
+                {ticket.title} - {ticket.state} ({ticket.priority})
+            </span>
+
+                            <div>
+                                <button
+                                    onClick={() => navigate(`/projects/${projectId}/tickets/${ticket.id}/edit`)}
+                                    style={{
+                                        marginRight: '0.5rem',
+                                        backgroundColor: '#ffc107',
+                                        border: 'none',
+                                        color: 'white',
+                                        borderRadius: '5px',
+                                        padding: '0.3rem 0.6rem',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    ✏️
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        if (!window.confirm('Opravdu smazat ticket?')) return;
+                                        try {
+                                            await axios.delete(`http://localhost:8080/projects/${projectId}/tickets/${ticket.id}`, { headers });
+                                            setTickets(prev => prev.filter(t => t.id !== ticket.id));
+                                        } catch (err) {
+                                            console.error(err);
+                                            alert('Nepodařilo se smazat ticket.');
+                                        }
+                                    }}
+                                    style={{
+                                        backgroundColor: '#dc3545',
+                                        border: 'none',
+                                        color: 'white',
+                                        borderRadius: '5px',
+                                        padding: '0.3rem 0.6rem',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
                     ))}
-                </ul>
+                </div>
+
 
                 {/* KOMENTÁŘE */}
                 <h3>Komentáře</h3>
