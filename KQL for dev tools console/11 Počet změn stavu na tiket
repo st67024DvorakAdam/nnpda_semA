@@ -1,0 +1,19 @@
+GET tickets-history/_search
+{
+  "size": 0,
+  "aggs": {
+    "tickets": {
+      "terms": {
+        "field": "ticket_id",
+        "size": 1000
+      },
+      "aggs": {
+        "state_changes": {
+          "value_count": {
+            "field": "state.keyword"
+          }
+        }
+      }
+    }
+  }
+}

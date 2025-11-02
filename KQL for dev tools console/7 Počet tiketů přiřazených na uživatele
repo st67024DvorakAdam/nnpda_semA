@@ -1,0 +1,14 @@
+GET /tickets-main/_search
+{
+  "size": 0,
+  "aggs": {
+    "tickets_per_user": {
+      "terms": {
+        "field": "assignee_username.keyword",
+        "size": 10
+      }
+    }
+  }
+}
+
+

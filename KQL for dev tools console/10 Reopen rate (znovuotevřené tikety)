@@ -1,0 +1,57 @@
+GET tickets-history/_search
+{
+  "size": 0,
+  "aggs": {
+    "reopen_rate": {
+      "scripted_metric": {
+        "init_script": "state.tickets = [:]",
+        "map_script": """
+          if (doc['ticket_id'].size() > 0 && doc['state.keyword'].size() > 0) {
+              def id = doc['ticket_id'].value;
+              def st = doc['state.keyword'].value;
+              if (!state.tickets.containsKey(id)) {
+                  state.tickets[id] = [];
+              }
+              state.tickets[id].add(st);
+          }
+        """,
+        "combine_script": "return state.tickets",
+        "reduce_script": """
+          def allTickets = [:];
+          def reopened = 0;
+          def doneTickets = 0;
+          for (s in states) {
+            for (entry in s.entrySet()) {
+              def id = entry.getKey();
+              def statesList = entry.getValue();
+              boolean everDone = statesList.contains('DONE');
+              if (everDone) {
+                doneTickets += 1;
+                if (statesList.contains('OPEN') || statesList.contains('IN_PROGRESS')) {
+                  reopened += 1;
+                }
+              }
+            }
+          }
+          return ['reopened': reopened, 'done': doneTickets, 'reopen_rate_percent': (doneTickets > 0 ? reopened*100.0/doneTickets : 0)];
+        """
+      }
+    }
+  }
+}
+
+
+
+Pozn.:
+state.tickets = [:] - Každý shard (část dat) si vytvoří vlastní lokální stav – tady je to mapa tickets
+map_script - Pro každý ticket si v state.tickets uložíme seznam stavů, kterými prošel.
+combine_script - Každý shard vrátí svůj lokální stav do shlukování.
+reduce_script - Tady se sbírají stavy z všech shardů dohromady.
+              - Pro každý ticket:
+                - everDone = true → ticket byl někdy dokončen (DONE).
+                - Pokud po dokončení prošel stavem OPEN nebo IN_PROGRESS → považujeme ho za znovuotevřený.
+
+              - Na konci se počítá:
+                - doneTickets = počet dokončených tiketů
+                - reopened = počet tiketů, které byly znovu otevřeny
+                - reopen_rate_percent = procento znovuotevřených tiketů

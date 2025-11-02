@@ -1,0 +1,19 @@
+GET tickets-main/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "term": { "state.keyword": "OPEN" } },
+        {
+          "range": {
+            "@timestamp": {
+              "lte": "now-1d/d"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+pozn.: lte ... lower than or equals

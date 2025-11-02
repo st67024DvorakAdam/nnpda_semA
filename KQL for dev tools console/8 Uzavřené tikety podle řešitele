@@ -1,0 +1,31 @@
+GET /tickets-main/_search
+{
+  "size": 0,
+  "query": {
+    "term": {
+      "state.keyword": "DONE"
+    }
+  },
+  "aggs": {
+    "by_user": {
+      "terms": {
+        "field": "assignee_username.keyword",
+        "size": 10
+      },
+      "aggs": {
+        "tickets": {
+          "top_hits": {
+            "_source": ["id", "title", "state"],
+            "size": 100,
+            "sort": [
+              { "updated_at": { "order": "desc" } }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+
+
+pozn.: top-hits z agregaec umožní přímo vypsat záznamy
