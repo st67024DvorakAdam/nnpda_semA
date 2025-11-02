@@ -30,6 +30,10 @@ const Login: React.FC = () => {
         }
     }
 
+    const handleRegisterRedirect = () => {
+        navigate('/register')
+    }
+
     return (
         <div className="login-container">
             <h2>Přihlášení</h2>
@@ -58,6 +62,13 @@ const Login: React.FC = () => {
 
                 <button type="submit">Přihlásit se</button>
             </form>
+
+            <p>
+                Ještě nemáte účet?{' '}
+                <button type="button" onClick={handleRegisterRedirect}>
+                    Registrovat se
+                </button>
+            </p>
         </div>
     )
 }
