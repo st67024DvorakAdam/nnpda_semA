@@ -1,0 +1,66 @@
+POST /tickets-history/_search
+{
+  "size": 0,
+  "aggs": {
+    "tickets": {
+      "terms": {
+        "field": "ticket_id",
+        "size": 10000
+      },
+      "aggs": {
+        "first_open": {
+          "filter": { "term": { "state.keyword": "OPEN" } },
+          "aggs": {
+            "min_open_time": { "min": { "field": "change_time" } }
+          }
+        },
+        "last_done": {
+          "filter": { "term": { "state.keyword": "DONE" } },
+          "aggs": {
+            "max_done_time": { "max": { "field": "change_time" } }
+          }
+        },
+        "ticket_duration_ms": {
+          "bucket_script": {
+            "buckets_path": {
+              "start": "first_open>min_open_time",
+              "end": "last_done>max_done_time"
+            },
+            "script": "params.end - params.start"
+          }
+        }
+      }
+    },
+    "average_duration_ms": {
+      "avg_bucket": {
+        "buckets_path": "tickets>ticket_duration_ms"
+      }
+    }
+  }
+}
+
+
+pozn.:
+1. size: 0
+   - Nevrací samotné dokumenty, jen výsledky agregací.
+
+2. Hlavní agregace: tickets
+   - Skupuje dokumenty podle ticket_id.
+   - Každý unikátní ticket_id je vlastní bucket.
+   - size: 10000 → maximálně 10 000 ticketů.
+
+3. Pod-agregace: first_open
+   - Filtruje dokumenty se stavem "OPEN".
+   - Vypočítá nejstarší change_time (min) → první otevření ticketu.
+
+4. Pod-agregace: last_done
+   - Filtruje dokumenty se stavem "DONE".
+   - Vypočítá nejnovější change_time (max) → poslední dokončení ticketu.
+
+5. Pod-agregace: ticket_duration_ms
+   - Používá bucket_script k výpočtu rozdílu: last_done - first_open.
+   - Výsledek je doba ticketu v ms.
+
+6. Agregace: average_duration_ms
+   - Vypočítá průměr všech ticket_duration_ms napříč tickety.
+   - Výsledek: průměrná doba od otevření do dokončení ticketu.
