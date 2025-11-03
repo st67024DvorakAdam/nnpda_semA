@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(indexName = "tickets")
+@Document(indexName = "tickets-main")
 public class TicketDocument {
     @Id
     private Long id;
