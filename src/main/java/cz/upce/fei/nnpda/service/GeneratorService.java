@@ -32,9 +32,9 @@ public class GeneratorService {
     private final Random random = new Random();
 
     // počet projektů a počet tiketů je pevně nastavený
-    private final int PROJECT_COUNT = 3;
-    private final int MIN_TICKETS = 1;
-    private final int MAX_TICKETS = 4;
+    private final int PROJECT_COUNT = 7;
+    private final int MIN_TICKETS = 5;
+    private final int MAX_TICKETS = 20;
 
     public void generateProjectsWithTickets() {
         List<AppUser> users = userRepository.findAll();

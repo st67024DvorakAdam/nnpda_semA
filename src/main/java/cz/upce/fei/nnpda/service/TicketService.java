@@ -22,6 +22,7 @@ public class TicketService {
     private final TicketRepository ticketRepository;
     private final ProjectRepository projectRepository;
     private final TicketHistoryService ticketHistoryService;
+    private final DeletedTicketService deletedTicketService;
 
     public List<Ticket> getTicketsForProject(Long projectId, AppUser currentUser) {
         Project project = projectRepository.findById(projectId)
@@ -89,6 +90,7 @@ public class TicketService {
 
     public void deleteTicket(Long projectId, Long ticketId, AppUser currentUser) {
         Ticket ticket = getTicket(projectId, ticketId, currentUser);
+        deletedTicketService.logDeletedTicket(ticket.getId());
         ticketRepository.delete(ticket);
     }
 }
