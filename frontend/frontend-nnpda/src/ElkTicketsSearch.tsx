@@ -14,17 +14,10 @@ interface TicketDocument {
     assigneeUsername: string;
 }
 
-interface AppUserDto {
-    id: number;
-    username: string;
-    email: string;
-}
-
 const API_BASE = "http://localhost:8080";
 
 const ElkTicketsSearch: React.FC = () => {
     const [tickets, setTickets] = useState<TicketDocument[]>([]);
-    const [users, setUsers] = useState<AppUserDto[]>([]);
 
     const [filters, setFilters] = useState({
         title: "",
@@ -40,28 +33,11 @@ const ElkTicketsSearch: React.FC = () => {
 
     useEffect(() => {
         fetchAllTickets();
-        fetchUsers();
     }, []);
 
     const getAuthHeader = () => {
         const token = localStorage.getItem("token");
         return { Authorization: `Bearer ${token}` };
-    };
-
-    const fetchUsers = async () => {
-        try {
-            const response = await axios.get(`${API_BASE}/users`, {
-                headers: getAuthHeader(),
-            });
-            if (Array.isArray(response.data)) {
-                setUsers(response.data);
-            } else {
-                console.warn("Uživatelé nejsou pole:", response.data);
-                setUsers([]);
-            }
-        } catch (error) {
-            console.error("Chyba při načítání uživatelů:", error);
-        }
     };
 
     const fetchAllTickets = async () => {
@@ -218,20 +194,6 @@ const ElkTicketsSearch: React.FC = () => {
                         ))}
                     </select>
 
-                    <select
-                        name="assigneeUsername"
-                        value={filters.assigneeUsername}
-                        onChange={handleFilterChange}
-                        className="border p-2 rounded w-full"
-                    >
-                        <option value="">— Přiřazený —</option>
-                        {users.map((u) => (
-                            <option key={u.id} value={u.username}>
-                                {u.username}
-                            </option>
-                        ))}
-                    </select>
-
                     <button
                         onClick={applyFilter}
                         className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
@@ -242,22 +204,20 @@ const ElkTicketsSearch: React.FC = () => {
 
                 {/* Tabulka */}
                 <div className="overflow-x-auto">
-                    <table className="min-w-full border border-gray-200">
+                    <table className="min-w-full border border-gray-200 text-left">
                         <thead className="bg-gray-100">
                         <tr>
-                            <th className="px-4 py-2 border">ID</th>
-                            <th className="px-4 py-2 border">Název</th>
-                            <th className="px-4 py-2 border">Projekt</th>
-                            <th className="px-4 py-2 border">Stav</th>
-                            <th className="px-4 py-2 border">Priorita</th>
-                            <th className="px-4 py-2 border">Typ</th>
-                            <th className="px-4 py-2 border">Přiřazeno</th>
+                            <th className="px-4 py-2 border w-16">ID</th>
+                            <th className="px-4 py-2 border w-64">Název</th>
+                            <th className="px-4 py-2 border w-32">Stav</th>
+                            <th className="px-4 py-2 border w-32">Priorita</th>
+                            <th className="px-4 py-2 border w-32">Typ</th>
                         </tr>
                         </thead>
                         <tbody>
                         {tickets.length === 0 ? (
                             <tr>
-                                <td colSpan={7} className="px-4 py-2 text-center text-gray-600">
+                                <td colSpan={5} className="px-4 py-2 text-center text-gray-600">
                                     Žádné tickety k zobrazení.
                                 </td>
                             </tr>
@@ -265,12 +225,10 @@ const ElkTicketsSearch: React.FC = () => {
                             tickets.map((ticket) => (
                                 <tr key={ticket.id} className="hover:bg-gray-50">
                                     <td className="px-4 py-2 border">{ticket.id}</td>
-                                    <td className="px-4 py-2 border">{ticket.title}</td>
-                                    <td className="px-4 py-2 border">{ticket.projectName}</td>
-                                    <td className="px-4 py-2 border">{ticket.state}</td>
-                                    <td className="px-4 py-2 border">{ticket.priority}</td>
-                                    <td className="px-4 py-2 border">{ticket.type}</td>
-                                    <td className="px-4 py-2 border">{ticket.assigneeUsername || "—"}</td>
+                                    <td className="px-4 py-2 border">{ticket.title || "—"}</td>
+                                    <td className="px-4 py-2 border">{ticket.state || "—"}</td>
+                                    <td className="px-4 py-2 border">{ticket.priority || "—"}</td>
+                                    <td className="px-4 py-2 border">{ticket.type || "—"}</td>
                                 </tr>
                             ))
                         )}
