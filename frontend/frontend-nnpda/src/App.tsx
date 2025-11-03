@@ -8,6 +8,7 @@ import CreateProject from "./CreateProject.tsx";
 import CreateTicket from "./CreateTicket.tsx";
 import AssignedTickets from "./AssignedTickets.tsx";
 import ElkTicketsSearch from "./ElkTicketsSearch.tsx";
+import MyAccount from "./MyAccount.tsx";
 
 const App = () => {
     const token = localStorage.getItem('token');
@@ -25,6 +26,7 @@ const App = () => {
             <Route path="/projects/:projectId/tickets/:ticketId" element={token ? <TicketDetail /> : <Navigate to="/login" />} />
             <Route path="/assigned-tickets" element={<AssignedTickets />} />
             <Route path="/elk-ticket-search" element={<ElkTicketsSearch />} />
+            <Route path="/account" element={<MyAccount />} />
             <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
     );
