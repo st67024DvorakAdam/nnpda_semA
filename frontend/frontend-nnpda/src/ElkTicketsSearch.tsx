@@ -168,6 +168,7 @@ const ElkTicketsSearch: React.FC = () => {
             <div className="p-6">
                 <h2 className="text-2xl font-bold mb-4">ELK Vyhledání Ticketů</h2>
 
+                {/* Filtry */}
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
                     <input
                         type="text"
@@ -239,24 +240,43 @@ const ElkTicketsSearch: React.FC = () => {
                     </button>
                 </div>
 
-                {!Array.isArray(tickets) || tickets.length === 0 ? (
-                    <p className="text-gray-600">Žádné tickety k zobrazení.</p>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {tickets.map((ticket) => (
-                            <div key={ticket.id} className="border rounded-lg p-4 shadow-sm bg-white">
-                                <h2 className="text-lg font-semibold">{ticket.title}</h2>
-                                <p className="text-sm text-gray-600">Projekt: {ticket.projectName}</p>
-                                <p className="text-sm">Stav: {ticket.state}</p>
-                                <p className="text-sm">Priorita: {ticket.priority}</p>
-                                <p className="text-sm">Typ: {ticket.type}</p>
-                                <p className="text-sm">
-                                    Přiřazeno: {ticket.assigneeUsername || "—"}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                {/* Tabulka */}
+                <div className="overflow-x-auto">
+                    <table className="min-w-full border border-gray-200">
+                        <thead className="bg-gray-100">
+                        <tr>
+                            <th className="px-4 py-2 border">ID</th>
+                            <th className="px-4 py-2 border">Název</th>
+                            <th className="px-4 py-2 border">Projekt</th>
+                            <th className="px-4 py-2 border">Stav</th>
+                            <th className="px-4 py-2 border">Priorita</th>
+                            <th className="px-4 py-2 border">Typ</th>
+                            <th className="px-4 py-2 border">Přiřazeno</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {tickets.length === 0 ? (
+                            <tr>
+                                <td colSpan={7} className="px-4 py-2 text-center text-gray-600">
+                                    Žádné tickety k zobrazení.
+                                </td>
+                            </tr>
+                        ) : (
+                            tickets.map((ticket) => (
+                                <tr key={ticket.id} className="hover:bg-gray-50">
+                                    <td className="px-4 py-2 border">{ticket.id}</td>
+                                    <td className="px-4 py-2 border">{ticket.title}</td>
+                                    <td className="px-4 py-2 border">{ticket.projectName}</td>
+                                    <td className="px-4 py-2 border">{ticket.state}</td>
+                                    <td className="px-4 py-2 border">{ticket.priority}</td>
+                                    <td className="px-4 py-2 border">{ticket.type}</td>
+                                    <td className="px-4 py-2 border">{ticket.assigneeUsername || "—"}</td>
+                                </tr>
+                            ))
+                        )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
